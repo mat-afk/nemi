@@ -6,8 +6,7 @@ import br.com.nemi.domain.user.exception.PhoneAlreadyInUseException;
 import br.com.nemi.dto.auth.register.RegisterRequestDTO;
 import br.com.nemi.dto.auth.register.RegisterResponseDTO;
 import br.com.nemi.repository.UserRepository;
-import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
-import cool.graph.cuid.Cuid;
+import br.com.nemi.util.TokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,14 +29,14 @@ public class AuthenticationService {
 
         User user = new User();
 
-        user.setId(Cuid.createCuid());
+        user.setId(TokenGenerator.generateCUID());
         user.setName(request.name());
         user.setEmail(request.email());
         user.setPhone(request.phone());
         user.setPassword(request.password());
         user.setDescription(request.description());
         user.setVerified(false);
-        user.setVerificationToken(this.generateVerificationToken());
+        user.setVerificationToken(TokenGenerator.generateVerificationToken());
         user.setCreatedAt(LocalDateTime.now());
 
         this.userRepository.save(user);
@@ -53,11 +52,5 @@ public class AuthenticationService {
         );
     }
 
-    private String generateVerificationToken() {
-        return NanoIdUtils.randomNanoId(
-                NanoIdUtils.DEFAULT_NUMBER_GENERATOR,
-                NanoIdUtils.DEFAULT_ALPHABET,
-                8
-        );
-    }
+
 }
