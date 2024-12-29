@@ -2,11 +2,13 @@ package br.com.nemi.service;
 
 import br.com.nemi.domain.user.User;
 import br.com.nemi.domain.user.exception.EmailAlreadyInUseException;
+import br.com.nemi.domain.user.exception.InvalidEmailException;
 import br.com.nemi.domain.user.exception.PhoneAlreadyInUseException;
 import br.com.nemi.dto.auth.register.RegisterRequestDTO;
 import br.com.nemi.dto.auth.register.RegisterResponseDTO;
 import br.com.nemi.repository.UserRepository;
 import br.com.nemi.util.TokenGenerator;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,9 @@ public class AuthenticationService {
     private UserRepository userRepository;
 
     public RegisterResponseDTO register(RegisterRequestDTO request) {
+
+        boolean isEmailValid = EmailValidator.getInstance().isValid(request.email());
+        if (!isEmailValid) throw new InvalidEmailException("Invalid e-mail address");
 
         Optional<User> existingUser = this.userRepository.findByEmail(request.email());
         if (existingUser.isPresent()) throw new EmailAlreadyInUseException("E-mail already in use");
@@ -51,6 +56,5 @@ public class AuthenticationService {
                 user.getCreatedAt()
         );
     }
-
 
 }
