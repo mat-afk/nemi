@@ -1,9 +1,7 @@
-package br.com.nemi.domain.participant;
+package br.com.nemi.domain.group;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import br.com.nemi.domain.participant.Participant;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,12 +10,12 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "participants")
+@Table(name = "draw_groups")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Participant {
+public class Group {
 
     @Id
     @Column(nullable = false)
@@ -26,16 +24,13 @@ public class Participant {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, unique = true)
-    private String email;
-
-    @Column(name = "phone_number", unique = true)
-    private String phoneNumber;
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
+    private Participant owner;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-
 }
