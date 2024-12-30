@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class ResponseEntityExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorResponseDTO> handleResourceNotFoundException() {
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<ErrorResponseDTO> handleResourceNotFoundException(NotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponseDTO(exception.getMessage()));
     }
 
     @ExceptionHandler(BadRequestException.class)
