@@ -1,4 +1,4 @@
-package br.com.nemi.util.exception;
+package br.com.nemi.exception;
 
 public class ForbiddenException extends RuntimeException {
     public ForbiddenException(String message) {

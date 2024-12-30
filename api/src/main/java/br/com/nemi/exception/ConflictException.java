@@ -1,4 +1,4 @@
-package br.com.nemi.util.exception;
+package br.com.nemi.exception;
 
 public class ConflictException extends RuntimeException {
     public ConflictException(String message) {

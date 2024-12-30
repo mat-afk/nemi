@@ -1,10 +1,10 @@
 package br.com.nemi.config;
 
-import br.com.nemi.dto.general.ErrorResponseDTO;
-import br.com.nemi.util.exception.BadRequestException;
-import br.com.nemi.util.exception.ConflictException;
-import br.com.nemi.util.exception.ForbiddenException;
-import br.com.nemi.util.exception.NotFoundException;
+import br.com.nemi.exception.dto.ErrorResponseDTO;
+import br.com.nemi.exception.BadRequestException;
+import br.com.nemi.exception.ConflictException;
+import br.com.nemi.exception.ForbiddenException;
+import br.com.nemi.exception.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

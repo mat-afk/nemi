@@ -1,4 +1,4 @@
-package br.com.nemi.util.exception;
+package br.com.nemi.exception;
 
 public class NotFoundException extends RuntimeException {
     public NotFoundException(String message) {

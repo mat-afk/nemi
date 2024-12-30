@@ -1,4 +1,4 @@
-package br.com.nemi.dto.general;
+package br.com.nemi.exception.dto;
 
 public record ErrorResponseDTO(String message) {
 }
