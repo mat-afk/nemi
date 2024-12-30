@@ -48,8 +48,10 @@ public class ParticipantService {
         participant.setName(request.name());
         participant.setEmail(request.email());
         participant.setPhoneNumber(request.phoneNumber());
-        participant.setCreatedAt(LocalDateTime.now());
-        participant.setUpdatedAt(LocalDateTime.now());
+
+        LocalDateTime now = LocalDateTime.now();
+        participant.setCreatedAt(now);
+        participant.setUpdatedAt(now);
 
         this.participantRepository.save(participant);
 
