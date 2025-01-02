@@ -4,7 +4,7 @@ import br.com.nemi.domain.group.Group;
 import br.com.nemi.domain.participant.Participant;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 public record GroupDetailsResponseDTO(
         String id,
@@ -12,17 +12,17 @@ public record GroupDetailsResponseDTO(
         Participant owner,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        Set<Participant> participants
+        List<Participant> participants
 ) {
 
-    public GroupDetailsResponseDTO(Group group) {
+    public GroupDetailsResponseDTO(Group group, List<Participant> participants) {
         this(
                 group.getId(),
                 group.getName(),
                 group.getOwner(),
                 group.getCreatedAt(),
                 group.getUpdatedAt(),
-                group.getParticipants()
+                participants
         );
     }
 }

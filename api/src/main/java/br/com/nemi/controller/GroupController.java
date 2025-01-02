@@ -1,6 +1,5 @@
 package br.com.nemi.controller;
 
-import br.com.nemi.domain.group.Group;
 import br.com.nemi.domain.group.dto.CreateGroupRequestDTO;
 import br.com.nemi.domain.group.dto.GroupDetailsResponseDTO;
 import br.com.nemi.domain.participant.dto.CreateParticipantRequestDTO;
@@ -26,8 +25,10 @@ public class GroupController {
     }
 
     @PostMapping
-    public ResponseEntity<Group> createGroup(@RequestBody CreateGroupRequestDTO request) {
-        Group response = this.groupService.createGroup(request);
+    public ResponseEntity<GroupDetailsResponseDTO> createGroup(
+            @RequestBody CreateGroupRequestDTO request
+    ) {
+        GroupDetailsResponseDTO response = this.groupService.createGroup(request);
         return ResponseEntity.created(URI.create("")).body(response);
     }
 

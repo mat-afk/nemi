@@ -45,7 +45,6 @@ public class ParticipantService {
         Participant participant = new Participant();
 
         participant.setId(TokenGenerator.generateCUID());
-        participant.setName(request.name());
         participant.setEmail(request.email());
         participant.setPhoneNumber(request.phoneNumber());
 
