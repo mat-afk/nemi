@@ -1,7 +1,7 @@
 package br.com.nemi.controller;
 
 import br.com.nemi.domain.group.dto.CreateGroupRequestDTO;
-import br.com.nemi.domain.group.dto.GroupDetailsResponseDTO;
+import br.com.nemi.domain.group.dto.GroupDetailsDTO;
 import br.com.nemi.domain.participant.dto.CreateParticipantRequestDTO;
 import br.com.nemi.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,25 +19,25 @@ public class GroupController {
     private GroupService groupService;
 
     @GetMapping
-    public ResponseEntity<List<GroupDetailsResponseDTO>> getGroups() {
-        List<GroupDetailsResponseDTO> response = this.groupService.getGroups();
+    public ResponseEntity<List<GroupDetailsDTO>> getGroups() {
+        List<GroupDetailsDTO> response = this.groupService.getGroups();
         return ResponseEntity.ok().body(response);
     }
 
     @PostMapping
-    public ResponseEntity<GroupDetailsResponseDTO> createGroup(
+    public ResponseEntity<GroupDetailsDTO> createGroup(
             @RequestBody CreateGroupRequestDTO request
     ) {
-        GroupDetailsResponseDTO response = this.groupService.createGroup(request);
+        GroupDetailsDTO response = this.groupService.createGroup(request);
         return ResponseEntity.created(URI.create("")).body(response);
     }
 
     @PutMapping("/{groupId}/participants")
-    public ResponseEntity<GroupDetailsResponseDTO> addParticipants(
+    public ResponseEntity<GroupDetailsDTO> addParticipants(
             @PathVariable String groupId,
             @RequestBody List<CreateParticipantRequestDTO> request
     ) {
-        GroupDetailsResponseDTO response = this.groupService.addParticipants(groupId, request);
+        GroupDetailsDTO response = this.groupService.addParticipants(groupId, request);
         return ResponseEntity.created(URI.create("")).body(response);
     }
 }

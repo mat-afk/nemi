@@ -2,20 +2,21 @@ package br.com.nemi.domain.group.dto;
 
 import br.com.nemi.domain.group.Group;
 import br.com.nemi.domain.participant.Participant;
+import br.com.nemi.domain.participant.dto.ParticipantMembershipDetailsDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record GroupDetailsResponseDTO(
+public record GroupDetailsDTO(
         String id,
         String name,
         Participant owner,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        List<Participant> participants
+        List<ParticipantMembershipDetailsDTO> participants
 ) {
 
-    public GroupDetailsResponseDTO(Group group, List<Participant> participants) {
+    public GroupDetailsDTO(Group group, List<ParticipantMembershipDetailsDTO> participants) {
         this(
                 group.getId(),
                 group.getName(),

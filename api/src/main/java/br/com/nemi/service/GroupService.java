@@ -2,10 +2,11 @@ package br.com.nemi.service;
 
 import br.com.nemi.domain.group.Group;
 import br.com.nemi.domain.group.dto.CreateGroupRequestDTO;
-import br.com.nemi.domain.group.dto.GroupDetailsResponseDTO;
+import br.com.nemi.domain.group.dto.GroupDetailsDTO;
 import br.com.nemi.domain.membership.Membership;
 import br.com.nemi.domain.participant.Participant;
 import br.com.nemi.domain.participant.dto.CreateParticipantRequestDTO;
+import br.com.nemi.domain.participant.dto.ParticipantMembershipDetailsDTO;
 import br.com.nemi.exception.NotFoundException;
 import br.com.nemi.repository.GroupRepository;
 import br.com.nemi.repository.MembershipRepository;
@@ -29,19 +30,22 @@ public class GroupService {
     @Autowired
     private ParticipantRepository participantRepository;
 
-    public List<GroupDetailsResponseDTO> getGroups() {
+    public List<GroupDetailsDTO> getGroups() {
         List<Group> groups = this.groupRepository.findAll();
 
-        List<GroupDetailsResponseDTO> response = new ArrayList<>();
+        List<GroupDetailsDTO> response = new ArrayList<>();
 
         groups.forEach(group -> {
-            List<Participant> participants =
+            List<ParticipantMembershipDetailsDTO> participants =
                     this.membershipRepository.findByGroup(group).stream().map(
-                            Membership::getParticipant
+                            m -> new ParticipantMembershipDetailsDTO(
+                                    m.getParticipant(),
+                                    m.getNickname()
+                            )
                     ).toList();
 
             response.add(
-                new GroupDetailsResponseDTO(
+                new GroupDetailsDTO(
                     group,
                     participants
                 )
@@ -51,7 +55,7 @@ public class GroupService {
         return response;
     }
 
-    public GroupDetailsResponseDTO createGroup(CreateGroupRequestDTO request) {
+    public GroupDetailsDTO createGroup(CreateGroupRequestDTO request) {
         Participant owner = this.participantRepository.findById(request.ownerId()).orElseThrow(
                 () -> new NotFoundException("Owner not found")
         );
@@ -75,15 +79,18 @@ public class GroupService {
 
         this.membershipRepository.save(membership);
 
-        return new GroupDetailsResponseDTO(
+        return new GroupDetailsDTO(
                 group,
                 this.membershipRepository.findByGroup(group).stream().map(
-                        Membership::getParticipant
+                        m -> new ParticipantMembershipDetailsDTO(
+                                m.getParticipant(),
+                                m.getNickname()
+                        )
                 ).toList()
         );
     }
 
-    public GroupDetailsResponseDTO addParticipants(
+    public GroupDetailsDTO addParticipants(
             String groupId,
             List<CreateParticipantRequestDTO> request
     ) {
@@ -143,10 +150,13 @@ public class GroupService {
             }
         });
 
-        return new GroupDetailsResponseDTO(
+        return new GroupDetailsDTO(
                 group,
                 this.membershipRepository.findByGroup(group).stream().map(
-                        Membership::getParticipant
+                        m -> new ParticipantMembershipDetailsDTO(
+                                m.getParticipant(),
+                                m.getNickname()
+                        )
                 ).toList()
         );
     }
