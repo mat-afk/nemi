@@ -10,4 +10,6 @@ public interface ParticipantRepository extends JpaRepository<Participant, String
     Optional<Participant> findByEmail(String email);
 
     Optional<Participant> findByPhoneNumber(String phoneNumber);
+
+    Optional<Participant> findByEmailOrPhoneNumber(String email, String phoneNumber);
 }

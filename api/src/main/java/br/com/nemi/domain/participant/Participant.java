@@ -24,6 +24,12 @@ public class Participant {
     @Column(name = "phone_number", unique = true)
     private String phoneNumber;
 
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "access_type", nullable = false)
+    private AccessType accessType;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
