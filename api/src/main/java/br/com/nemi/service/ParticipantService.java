@@ -1,19 +1,12 @@
 package br.com.nemi.service;
 
 import br.com.nemi.domain.participant.Participant;
-import br.com.nemi.domain.participant.dto.CreateParticipantRequestDTO;
 import br.com.nemi.repository.ParticipantRepository;
-import br.com.nemi.util.TokenGenerator;
-import br.com.nemi.exception.BadRequestException;
-import br.com.nemi.exception.ConflictException;
 import br.com.nemi.exception.NotFoundException;
-import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ParticipantService {
@@ -31,29 +24,4 @@ public class ParticipantService {
         );
     }
 
-    public Participant createParticipant(CreateParticipantRequestDTO request) {
-
-        boolean isEmailValid = EmailValidator.getInstance().isValid(request.email());
-        if (!isEmailValid) throw new BadRequestException("Invalid e-mail address");
-
-        Optional<Participant> existingUser = this.participantRepository.findByEmail(request.email());
-        if (existingUser.isPresent()) throw new ConflictException("E-mail already in use");
-
-        existingUser = this.participantRepository.findByPhoneNumber(request.phoneNumber());
-        if (existingUser.isPresent()) throw new ConflictException("Phone number already in use");
-
-        Participant participant = new Participant();
-
-        participant.setId(TokenGenerator.generateCUID());
-        participant.setEmail(request.email());
-        participant.setPhoneNumber(request.phoneNumber());
-
-        LocalDateTime now = LocalDateTime.now();
-        participant.setCreatedAt(now);
-        participant.setUpdatedAt(now);
-
-        this.participantRepository.save(participant);
-
-        return participant;
-    }
 }

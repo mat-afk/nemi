@@ -1,6 +1,6 @@
 package br.com.nemi.domain.participant.dto;
 
-public record CreateParticipantRequestDTO(
+public record AddParticipantRequestDTO(
         String nickname,
         String email,
         String phoneNumber

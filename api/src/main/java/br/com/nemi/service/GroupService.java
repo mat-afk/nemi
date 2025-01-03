@@ -4,13 +4,15 @@ import br.com.nemi.domain.group.Group;
 import br.com.nemi.domain.group.dto.CreateGroupRequestDTO;
 import br.com.nemi.domain.group.dto.GroupDetailsDTO;
 import br.com.nemi.domain.membership.Membership;
+import br.com.nemi.domain.participant.AccessType;
 import br.com.nemi.domain.participant.Participant;
-import br.com.nemi.domain.participant.dto.CreateParticipantRequestDTO;
+import br.com.nemi.domain.participant.dto.AddParticipantRequestDTO;
 import br.com.nemi.domain.participant.dto.ParticipantMembershipDetailsDTO;
 import br.com.nemi.exception.NotFoundException;
 import br.com.nemi.repository.GroupRepository;
 import br.com.nemi.repository.MembershipRepository;
 import br.com.nemi.repository.ParticipantRepository;
+import br.com.nemi.util.FieldValidator;
 import br.com.nemi.util.TokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -92,7 +94,7 @@ public class GroupService {
 
     public GroupDetailsDTO addParticipants(
             String groupId,
-            List<CreateParticipantRequestDTO> request
+            List<AddParticipantRequestDTO> request
     ) {
         Group group = this.groupRepository.findById(groupId).orElseThrow(
                 () -> new NotFoundException("Group not found with id: " + groupId)
@@ -107,17 +109,18 @@ public class GroupService {
             if (existingParticipant.isEmpty()) {
                 Participant newParticipant = new Participant();
 
-                String email = participant.email() == null
+                String email = FieldValidator.isNullOrBlank(participant.email())
                         ? null
-                        : participant.email().isBlank() ? null : participant.email();
-
-                String phoneNumber = participant.phoneNumber() == null
+                        : participant.email();
+                String phoneNumber = FieldValidator.isNullOrBlank(participant.phoneNumber())
                         ? null
-                        : participant.phoneNumber().isBlank() ? null : participant.phoneNumber();
+                        : participant.phoneNumber();
 
                 newParticipant.setId(TokenGenerator.generateCUID());
                 newParticipant.setEmail(email);
                 newParticipant.setPhoneNumber(phoneNumber);
+                newParticipant.setPassword(null);
+                newParticipant.setAccessType(AccessType.GUEST);
                 newParticipant.setCreatedAt(now);
                 newParticipant.setUpdatedAt(now);
 
