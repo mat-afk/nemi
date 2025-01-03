@@ -1,18 +1,17 @@
 package br.com.nemi.service;
 
+import br.com.nemi.config.security.TokenService;
 import br.com.nemi.domain.participant.AccessType;
 import br.com.nemi.domain.participant.Participant;
-import br.com.nemi.domain.participant.dto.LoginRequestDTO;
+import br.com.nemi.domain.participant.dto.AuthenticationResponseDTO;
 import br.com.nemi.domain.participant.dto.RegisterRequestDTO;
-import br.com.nemi.exception.BadRequestException;
 import br.com.nemi.exception.ConflictException;
 import br.com.nemi.exception.NotFoundException;
 import br.com.nemi.repository.ParticipantRepository;
 import br.com.nemi.util.FieldValidator;
-import br.com.nemi.util.TokenGenerator;
+import br.com.nemi.util.IdentifierProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,16 +27,17 @@ public class AuthenticationService implements UserDetailsService {
     @Autowired
     private ParticipantRepository participantRepository;
 
+    @Autowired
+    private TokenService tokenService;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Participant participant = this.participantRepository
+        return this.participantRepository
                 .findByEmailOrPhoneNumber(username, username)
                 .orElseThrow(() -> new NotFoundException("User not found with: " + username));
-
-        return new User(username, participant.getPassword(), List.of());
     }
 
-    public Participant register(RegisterRequestDTO request) {
+    public AuthenticationResponseDTO register(RegisterRequestDTO request) {
         String email = FieldValidator.isNullOrBlank(request.email()) ? null : request.email();
         String phoneNumber = FieldValidator.isNullOrBlank(request.phoneNumber()) ? null : request.phoneNumber();
 
@@ -60,7 +59,7 @@ public class AuthenticationService implements UserDetailsService {
         } else {
 
             participant = new Participant();
-            participant.setId(TokenGenerator.generateCUID());
+            participant.setId(IdentifierProvider.generateCUID());
             participant.setEmail(email);
             participant.setPhoneNumber(phoneNumber);
 
@@ -76,17 +75,16 @@ public class AuthenticationService implements UserDetailsService {
 
         this.participantRepository.save(participant);
 
-        return participant;
+        String token = this.tokenService.generateToken(participant);
+
+        return new AuthenticationResponseDTO(participant, token);
     }
 
-    public UsernamePasswordAuthenticationToken login(LoginRequestDTO request) {
-        if (FieldValidator.isNullOrBlank(request.login()))
-            throw new BadRequestException("E-mail or phone number are required");
+    public AuthenticationResponseDTO login(Authentication authentication) {
+        Participant participant = (Participant) authentication.getPrincipal();
+        String token = this.tokenService.generateToken(participant);
 
-        if (FieldValidator.isNullOrBlank(request.password()))
-            throw new BadRequestException("Password is required");
-
-        return new UsernamePasswordAuthenticationToken(request.login(), request.password());
+        return new AuthenticationResponseDTO(participant, token);
     }
 
 }

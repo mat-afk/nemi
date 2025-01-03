@@ -13,7 +13,7 @@ import br.com.nemi.repository.GroupRepository;
 import br.com.nemi.repository.MembershipRepository;
 import br.com.nemi.repository.ParticipantRepository;
 import br.com.nemi.util.FieldValidator;
-import br.com.nemi.util.TokenGenerator;
+import br.com.nemi.util.IdentifierProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -65,7 +65,7 @@ public class GroupService {
         LocalDateTime now = LocalDateTime.now();
 
         Group group = new Group();
-        group.setId(TokenGenerator.generateCUID());
+        group.setId(IdentifierProvider.generateCUID());
         group.setName(request.name());
         group.setOwner(owner);
         group.setCreatedAt(now);
@@ -116,7 +116,7 @@ public class GroupService {
                         ? null
                         : participant.phoneNumber();
 
-                newParticipant.setId(TokenGenerator.generateCUID());
+                newParticipant.setId(IdentifierProvider.generateCUID());
                 newParticipant.setEmail(email);
                 newParticipant.setPhoneNumber(phoneNumber);
                 newParticipant.setPassword(null);
