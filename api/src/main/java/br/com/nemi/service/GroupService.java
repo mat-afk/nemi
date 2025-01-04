@@ -15,6 +15,7 @@ import br.com.nemi.repository.ParticipantRepository;
 import br.com.nemi.util.FieldValidator;
 import br.com.nemi.util.IdentifierProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -58,9 +59,11 @@ public class GroupService {
     }
 
     public GroupDetailsDTO createGroup(CreateGroupRequestDTO request) {
-        Participant owner = this.participantRepository.findById(request.ownerId()).orElseThrow(
-                () -> new NotFoundException("Owner not found")
-        );
+        Participant participant = (Participant) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        Participant owner = this.participantRepository
+                .findById(participant.getId())
+                .orElseThrow(() -> new NotFoundException("Owner not found"));
 
         LocalDateTime now = LocalDateTime.now();
 

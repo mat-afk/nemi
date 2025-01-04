@@ -18,6 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
+@ToString
 public class Participant implements UserDetails {
 
     @Id
