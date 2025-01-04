@@ -44,16 +44,40 @@ public class Participant implements UserDetails {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
     }
 
+    @JsonIgnore
     @Override
     public String getUsername() {
-        if (FieldValidator.isNullOrBlank(this.getEmail())) return this.getPhoneNumber();
-        if (FieldValidator.isNullOrBlank(this.getPhoneNumber())) return this.getEmail();
-
-        return "";
+        return FieldValidator.isNullOrBlank(this.getEmail()) ? this.getPhoneNumber() : this.getEmail();
     }
+
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
+
 }

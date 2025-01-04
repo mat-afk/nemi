@@ -44,7 +44,7 @@ public class TokenService {
                     .withIssuer(ISSUER)
                     .build()
                     .verify(token)
-                    .getSignature();
+                    .getSubject();
 
         } catch (JWTVerificationException exception) {
             return "";
