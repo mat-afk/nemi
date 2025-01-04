@@ -2,7 +2,7 @@ package br.com.nemi.controller;
 
 import br.com.nemi.domain.group.dto.CreateGroupRequestDTO;
 import br.com.nemi.domain.group.dto.GroupDetailsDTO;
-import br.com.nemi.domain.participant.dto.AddParticipantRequestDTO;
+import br.com.nemi.domain.participant.dto.AddParticipantInGroupRequestDTO;
 import br.com.nemi.domain.participant.dto.ParticipantMembershipDetailsDTO;
 import br.com.nemi.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +36,20 @@ public class GroupController {
     @PutMapping("/{groupId}/participants")
     public ResponseEntity<List<ParticipantMembershipDetailsDTO>> addParticipants(
             @PathVariable String groupId,
-            @RequestBody List<AddParticipantRequestDTO> request
+            @RequestBody List<AddParticipantInGroupRequestDTO> request
     ) {
         List<ParticipantMembershipDetailsDTO> response = this.groupService.addParticipants(groupId, request);
         return ResponseEntity.created(URI.create("")).body(response);
+    }
+
+    @PutMapping("/{groupId}/participants/{participantId}")
+    public ResponseEntity<ParticipantMembershipDetailsDTO> updateParticipant(
+            @PathVariable String groupId,
+            @PathVariable String participantId,
+            @RequestBody AddParticipantInGroupRequestDTO request
+    ) {
+        ParticipantMembershipDetailsDTO response = this.groupService.updateParticipant(groupId, participantId, request);
+
+        return ResponseEntity.ok().body(response);
     }
 }

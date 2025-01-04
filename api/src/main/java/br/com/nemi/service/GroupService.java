@@ -6,8 +6,11 @@ import br.com.nemi.domain.group.dto.GroupDetailsDTO;
 import br.com.nemi.domain.membership.Membership;
 import br.com.nemi.domain.participant.AccessType;
 import br.com.nemi.domain.participant.Participant;
-import br.com.nemi.domain.participant.dto.AddParticipantRequestDTO;
+import br.com.nemi.domain.participant.dto.AddParticipantInGroupRequestDTO;
 import br.com.nemi.domain.participant.dto.ParticipantMembershipDetailsDTO;
+import br.com.nemi.exception.BadRequestException;
+import br.com.nemi.exception.ConflictException;
+import br.com.nemi.exception.ForbiddenException;
 import br.com.nemi.exception.NotFoundException;
 import br.com.nemi.repository.GroupRepository;
 import br.com.nemi.repository.MembershipRepository;
@@ -59,11 +62,7 @@ public class GroupService {
     }
 
     public GroupDetailsDTO createGroup(CreateGroupRequestDTO request) {
-        Participant participant = (Participant) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        Participant owner = this.participantRepository
-                .findById(participant.getId())
-                .orElseThrow(() -> new NotFoundException("Owner not found"));
+        Participant owner = (Participant) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -97,7 +96,7 @@ public class GroupService {
 
     public List<ParticipantMembershipDetailsDTO> addParticipants(
             String groupId,
-            List<AddParticipantRequestDTO> request
+            List<AddParticipantInGroupRequestDTO> request
     ) {
         Group group = this.groupRepository.findById(groupId).orElseThrow(
                 () -> new NotFoundException("Group not found with id: " + groupId)
@@ -162,5 +161,49 @@ public class GroupService {
                         m.getNickname()
                 )
         ).toList();
+    }
+
+    public ParticipantMembershipDetailsDTO updateParticipant(
+            String groupId,
+            String participantId,
+            AddParticipantInGroupRequestDTO request
+    ) {
+        Group group = this.groupRepository.findById(groupId).orElseThrow(
+                () -> new NotFoundException("Group not found with id: " + groupId)
+        );
+
+        Participant authParticipant =
+                (Participant) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!group.getOwner().equals(authParticipant))
+            throw new ForbiddenException("You don't have permission to update users in this group");
+
+        Participant participant = this.participantRepository.findById(participantId).orElseThrow(
+                () -> new NotFoundException("Participant not found with id: " + participantId)
+        );
+
+        Membership membership = this.membershipRepository.findByParticipantAndGroup(participant, group)
+                .orElseThrow(() -> new BadRequestException("Participant is not in this group"));
+
+        if (participant.getAccessType() == AccessType.USER)
+            throw new BadRequestException("You cannot update e-mail or phone number of a registered user");
+
+        Optional<Participant> existingParticipant = this.participantRepository.findByEmail(request.email());
+
+        if (existingParticipant.isPresent() && !existingParticipant.get().getId().equals(participantId))
+            throw new ConflictException("Unavailable e-mail");
+
+        existingParticipant = this.participantRepository.findByPhoneNumber(request.phoneNumber());
+        if (existingParticipant.isPresent() && !existingParticipant.get().getId().equals(participantId))
+            throw new ConflictException("Unavailable phone number");
+
+        participant.setEmail(request.email());
+        participant.setPhoneNumber(request.phoneNumber());
+        this.participantRepository.save(participant);
+
+        membership.setNickname(request.nickname());
+        this.membershipRepository.save(membership);
+
+        return new ParticipantMembershipDetailsDTO(participant, membership.getNickname());
     }
 }
