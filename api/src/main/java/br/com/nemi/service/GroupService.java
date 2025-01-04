@@ -95,7 +95,7 @@ public class GroupService {
         );
     }
 
-    public GroupDetailsDTO addParticipants(
+    public List<ParticipantMembershipDetailsDTO> addParticipants(
             String groupId,
             List<AddParticipantRequestDTO> request
     ) {
@@ -156,14 +156,11 @@ public class GroupService {
             }
         });
 
-        return new GroupDetailsDTO(
-                group,
-                this.membershipRepository.findByGroup(group).stream().map(
-                        m -> new ParticipantMembershipDetailsDTO(
-                                m.getParticipant(),
-                                m.getNickname()
-                        )
-                ).toList()
-        );
+        return this.membershipRepository.findByGroup(group).stream().map(
+                m -> new ParticipantMembershipDetailsDTO(
+                        m.getParticipant(),
+                        m.getNickname()
+                )
+        ).toList();
     }
 }

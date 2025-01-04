@@ -3,6 +3,7 @@ package br.com.nemi.controller;
 import br.com.nemi.domain.group.dto.CreateGroupRequestDTO;
 import br.com.nemi.domain.group.dto.GroupDetailsDTO;
 import br.com.nemi.domain.participant.dto.AddParticipantRequestDTO;
+import br.com.nemi.domain.participant.dto.ParticipantMembershipDetailsDTO;
 import br.com.nemi.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -33,11 +34,11 @@ public class GroupController {
     }
 
     @PutMapping("/{groupId}/participants")
-    public ResponseEntity<GroupDetailsDTO> addParticipants(
+    public ResponseEntity<List<ParticipantMembershipDetailsDTO>> addParticipants(
             @PathVariable String groupId,
             @RequestBody List<AddParticipantRequestDTO> request
     ) {
-        GroupDetailsDTO response = this.groupService.addParticipants(groupId, request);
+        List<ParticipantMembershipDetailsDTO> response = this.groupService.addParticipants(groupId, request);
         return ResponseEntity.created(URI.create("")).body(response);
     }
 }
