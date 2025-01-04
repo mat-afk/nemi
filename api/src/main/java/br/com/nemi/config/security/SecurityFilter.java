@@ -1,6 +1,5 @@
 package br.com.nemi.config.security;
 
-import br.com.nemi.domain.participant.Participant;
 import br.com.nemi.exception.NotFoundException;
 import br.com.nemi.repository.ParticipantRepository;
 import jakarta.servlet.FilterChain;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
@@ -34,14 +32,13 @@ public class SecurityFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        var token = this.recoverToken(request);
+        String token = this.recoverToken(request);
 
         if (token != null) {
-            var username = this.tokenService.validateToken(token);
+            String username = this.tokenService.validateToken(token);
             UserDetails user = this.participantRepository
                     .findByEmailOrPhoneNumber(username, username)
-                    .orElseThrow(
-                    () -> new NotFoundException("Participant not found with: " + username)
+                    .orElseThrow(() -> new NotFoundException("Participant not found with: " + username)
             );
 
             var authentication = new UsernamePasswordAuthenticationToken(
@@ -56,8 +53,10 @@ public class SecurityFilter extends OncePerRequestFilter {
     }
 
     private String recoverToken(HttpServletRequest request) {
-        for (Cookie cookie : request.getCookies()) {
-            if (cookie.getName().equals("jwt")) return cookie.getValue();
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if (cookie.getName().equals("jwt")) return cookie.getValue();
+            }
         }
 
         var header = request.getHeader("Authorization");
