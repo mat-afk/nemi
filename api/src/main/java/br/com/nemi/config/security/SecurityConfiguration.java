@@ -30,9 +30,10 @@ public class SecurityConfiguration  {
                         SessionCreationPolicy.STATELESS
                 ))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/auth/login/**", "/auth/register/**").permitAll()
-                        .requestMatchers(
-                                HttpMethod.GET, "/groups/{groupId}/draws/{drawId}/results/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/login/**", "/auth/register/**", "/auth/logout/**")
+                            .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/groups/{groupId}/draws/{drawId}/results/**")
+                            .permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

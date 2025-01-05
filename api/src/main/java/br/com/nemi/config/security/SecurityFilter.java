@@ -15,12 +15,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
 
-    private final List<String> PUBLIC_ROUTES = List.of("/auth/login", "/auth/register");
+    private final List<String> PUBLIC_ROUTES = List.of("/auth/login", "/auth/register", "/auth/logout");
 
     @Autowired
     private TokenService tokenService;
