@@ -14,8 +14,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
-
 @RestController
 @RequestMapping("/auth")
 public class AuthenticationController {
@@ -37,7 +35,7 @@ public class AuthenticationController {
         configureCookie(cookie);
         response.addCookie(cookie);
 
-        return ResponseEntity.created(URI.create("")).body(body);
+        return ResponseEntity.ok().body(body);
     }
 
     @PostMapping("/login")
