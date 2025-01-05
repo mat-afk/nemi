@@ -206,4 +206,26 @@ public class GroupService {
 
         return new ParticipantMembershipDetailsDTO(participant, membership.getNickname());
     }
+
+    public void removeParticipant(String groupId, String participantId) {
+        Group group = this.groupRepository.findById(groupId).orElseThrow(
+                () -> new NotFoundException("Group not found with id: " + groupId)
+        );
+
+        Participant authParticipant =
+                (Participant) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!group.getOwner().equals(authParticipant))
+            throw new ForbiddenException("You don't have permission to remove participants from this group");
+
+        Participant participant = this.participantRepository.findById(participantId).orElseThrow(
+                () -> new NotFoundException("Participant not found with id: " + participantId)
+        );
+
+        Membership membership = this.membershipRepository.findByParticipantAndGroup(participant, group)
+                .orElseThrow(() -> new BadRequestException("Participant is not in this group"));
+
+        this.membershipRepository.delete(membership);
+    }
+
 }

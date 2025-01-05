@@ -52,4 +52,15 @@ public class GroupController {
 
         return ResponseEntity.ok().body(response);
     }
+
+    @DeleteMapping("/{groupId}/participants/{participantId}")
+    public ResponseEntity<Void> removeParticipant(
+            @PathVariable String groupId,
+            @PathVariable String participantId
+    ) {
+        this.groupService.removeParticipant(groupId, participantId);
+
+        return ResponseEntity.ok().build();
+    }
+
 }
