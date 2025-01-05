@@ -1,6 +1,7 @@
 package br.com.nemi.controller;
 
 import br.com.nemi.domain.participant.Participant;
+import br.com.nemi.domain.participant.dto.UpdateParticipantRequestDTO;
 import br.com.nemi.service.ParticipantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,4 +27,14 @@ public class ParticipantController {
         Participant response = this.participantService.getParticipant(id);
         return ResponseEntity.ok().body(response);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Participant> updateParticipant(
+            @PathVariable String id,
+            @RequestBody UpdateParticipantRequestDTO request
+    ) {
+        Participant participant = this.participantService.updateParticipant(id, request);
+        return ResponseEntity.ok().body(participant);
+    }
+
 }
