@@ -12,5 +12,7 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
 
     List<Membership> findByGroup(Group group);
 
+    List<Membership> findByParticipant(Participant participant);
+
     Optional<Membership> findByParticipantAndGroup(Participant participant, Group group);
 }

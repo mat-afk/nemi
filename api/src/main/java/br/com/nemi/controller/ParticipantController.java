@@ -37,4 +37,10 @@ public class ParticipantController {
         return ResponseEntity.ok().body(participant);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteParticipant(@PathVariable String id) {
+        this.participantService.deleteParticipant(id);
+        return ResponseEntity.ok().build();
+    }
+
 }
