@@ -36,32 +36,31 @@ public class GroupService {
     @Autowired
     private ParticipantRepository participantRepository;
 
-    public List<GroupDetailsDTO> getGroups() {
-        List<Group> groups = this.groupRepository.findAll();
-
-        List<GroupDetailsDTO> response = new ArrayList<>();
-
-        groups.forEach(group -> {
-            List<ParticipantMembershipDetailsDTO> participants =
-                    this.membershipRepository.findByGroup(group).stream().map(
-                            m -> new ParticipantMembershipDetailsDTO(
-                                    m.getParticipant(),
-                                    m.getNickname()
-                            )
-                    ).toList();
-
-            response.add(
-                new GroupDetailsDTO(
-                    group,
-                    participants
-                )
-            );
-        });
-
-        return response;
+    public List<Group> getGroups() {
+        return this.groupRepository.findAll();
     }
 
-    public GroupDetailsDTO createGroup(CreateGroupRequestDTO request) {
+    public Group getGroup(String id) {
+        return this.groupRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException("Group not found with id: " + id));
+    }
+
+    public GroupDetailsDTO getGroupDetails(String id) {
+        Group group = this.groupRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException("Group not found with id: " + id));
+
+        List<ParticipantMembershipDetailsDTO> participants = this.membershipRepository
+                .findByGroup(group).stream()
+                .map(membership ->
+                        new ParticipantMembershipDetailsDTO(membership.getParticipant(), membership.getNickname()))
+                .toList();
+
+        return new GroupDetailsDTO(group, participants);
+    }
+
+    public Group createGroup(CreateGroupRequestDTO request) {
         Participant owner = (Participant) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         LocalDateTime now = LocalDateTime.now();
@@ -83,15 +82,7 @@ public class GroupService {
 
         this.membershipRepository.save(membership);
 
-        return new GroupDetailsDTO(
-                group,
-                this.membershipRepository.findByGroup(group).stream().map(
-                        m -> new ParticipantMembershipDetailsDTO(
-                                m.getParticipant(),
-                                m.getNickname()
-                        )
-                ).toList()
-        );
+        return group;
     }
 
     public void deleteGroup(String id) {

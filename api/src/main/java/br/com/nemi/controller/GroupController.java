@@ -1,5 +1,6 @@
 package br.com.nemi.controller;
 
+import br.com.nemi.domain.group.Group;
 import br.com.nemi.domain.group.dto.CreateGroupRequestDTO;
 import br.com.nemi.domain.group.dto.GroupDetailsDTO;
 import br.com.nemi.domain.participant.dto.AddParticipantInGroupRequestDTO;
@@ -20,16 +21,28 @@ public class GroupController {
     private GroupService groupService;
 
     @GetMapping
-    public ResponseEntity<List<GroupDetailsDTO>> getGroups() {
-        List<GroupDetailsDTO> response = this.groupService.getGroups();
+    public ResponseEntity<List<Group>> getGroups() {
+        List<Group> response = this.groupService.getGroups();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Group> getGroup(@PathVariable String id) {
+        Group response = this.groupService.getGroup(id);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/{id}/details")
+    public ResponseEntity<GroupDetailsDTO> getGroupDetails(@PathVariable String id) {
+        GroupDetailsDTO response = this.groupService.getGroupDetails(id);
         return ResponseEntity.ok().body(response);
     }
 
     @PostMapping
-    public ResponseEntity<GroupDetailsDTO> createGroup(
+    public ResponseEntity<Group> createGroup(
             @RequestBody CreateGroupRequestDTO request
     ) {
-        GroupDetailsDTO response = this.groupService.createGroup(request);
+        Group response = this.groupService.createGroup(request);
         return ResponseEntity.created(URI.create("")).body(response);
     }
 
