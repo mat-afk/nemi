@@ -94,6 +94,24 @@ public class GroupService {
         );
     }
 
+    public void deleteGroup(String id) {
+        Group group = this.groupRepository.findById(id).orElseThrow(
+                () -> new NotFoundException("Group not found with id: " + id)
+        );
+
+        Participant authParticipant =
+                (Participant) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!group.getOwner().getId().equals(authParticipant.getId()))
+            throw new BadRequestException("You don't have permission to delete this group");
+
+        this.membershipRepository.deleteAll(
+                this.membershipRepository.findByGroup(group)
+        );
+
+        this.groupRepository.delete(group);
+    }
+
     public List<ParticipantMembershipDetailsDTO> addParticipants(
             String groupId,
             List<AddParticipantInGroupRequestDTO> request

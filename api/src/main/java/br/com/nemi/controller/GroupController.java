@@ -33,6 +33,12 @@ public class GroupController {
         return ResponseEntity.created(URI.create("")).body(response);
     }
 
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteGroup(@PathVariable String id) {
+        this.groupService.deleteGroup(id);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/{groupId}/participants")
     public ResponseEntity<List<ParticipantMembershipDetailsDTO>> addParticipants(
             @PathVariable String groupId,
