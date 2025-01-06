@@ -42,10 +42,26 @@ public class AuthenticationService implements UserDetailsService {
 
     public AuthenticationResponseDTO register(RegisterRequestDTO request) {
         String email = FieldValidator.isNullOrBlank(request.email()) ? null : request.email();
-        String phoneNumber = FieldValidator.isNullOrBlank(request.phoneNumber()) ? null : request.phoneNumber();
+
+        String phoneNumber = request.phoneNumber() == null
+                ? null
+                : FieldValidator.isNullOrBlank(request.phoneNumber().number())
+                    ? null
+                    : request.phoneNumber().number();
+
+        if (email == null && phoneNumber == null) throw new BadRequestException("E-mail or phone number required");
+
+        if (email != null) {
+            if (!FieldValidator.isEmailValid(email)) throw new BadRequestException("Invalid e-mail");
+        }
+
+        if (request.phoneNumber() != null) {
+            if (!FieldValidator.isPhoneNumberValid(request.phoneNumber()))
+                throw new BadRequestException("Invalid phone number");
+        }
 
         List<Participant> existingParticipants = this.participantRepository.findByEmailOrPhoneNumber(email, phoneNumber);
-        if (existingParticipants.size() > 1) throw new BadRequestException("Unavailable e-mail and/or phone number");
+        if (existingParticipants.size() > 1) throw new ConflictException("Unavailable e-mail and/or phone number");
 
         Optional<Participant> existingParticipant = existingParticipants.stream().findFirst();
 

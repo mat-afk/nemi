@@ -6,7 +6,7 @@ import br.com.nemi.domain.group.dto.GroupDetailsDTO;
 import br.com.nemi.domain.membership.Membership;
 import br.com.nemi.domain.participant.AccessType;
 import br.com.nemi.domain.participant.Participant;
-import br.com.nemi.domain.participant.dto.AddParticipantInGroupRequestDTO;
+import br.com.nemi.domain.group.dto.AddParticipantInGroupRequestDTO;
 import br.com.nemi.domain.participant.dto.ParticipantMembershipDetailsDTO;
 import br.com.nemi.exception.BadRequestException;
 import br.com.nemi.exception.ConflictException;
@@ -155,9 +155,23 @@ public class GroupService {
                 String email = FieldValidator.isNullOrBlank(participant.email())
                         ? null
                         : participant.email();
-                String phoneNumber = FieldValidator.isNullOrBlank(participant.phoneNumber())
+                String phoneNumber = participant.phoneNumber() == null
                         ? null
-                        : participant.phoneNumber();
+                        : FieldValidator.isNullOrBlank(participant.phoneNumber().number())
+                            ? null
+                            : participant.phoneNumber().number();
+
+                if (email == null && phoneNumber == null)
+                    throw new BadRequestException("E-mail or phone number required");
+
+                if (email != null) {
+                    if (!FieldValidator.isEmailValid(email)) throw new BadRequestException("Invalid e-mail");
+                }
+
+                if (phoneNumber != null && participant.phoneNumber().countryCode() != null) {
+                    if (!FieldValidator.isPhoneNumberValid(participant.phoneNumber()))
+                        throw new BadRequestException("Invalid phone number");
+                }
 
                 newParticipant.setId(IdentifierProvider.generateCUID());
                 newParticipant.setEmail(email);
@@ -236,12 +250,21 @@ public class GroupService {
         if (existingParticipant.isPresent() && !existingParticipant.get().getId().equals(participantId))
             throw new ConflictException("Unavailable e-mail");
 
-        existingParticipant = this.participantRepository.findByPhoneNumber(request.phoneNumber());
+        existingParticipant = this.participantRepository.findByPhoneNumber(request.phoneNumber().number());
         if (existingParticipant.isPresent() && !existingParticipant.get().getId().equals(participantId))
             throw new ConflictException("Unavailable phone number");
 
+        if (request.email() != null) {
+            if (!FieldValidator.isEmailValid(request.email())) throw new BadRequestException("Invalid e-mail");
+        }
+
+        if (request.phoneNumber().number() != null && request.phoneNumber().countryCode() != null) {
+            if (!FieldValidator.isPhoneNumberValid(request.phoneNumber()))
+                throw new BadRequestException("Invalid phone number");
+        }
+
         participant.setEmail(request.email());
-        participant.setPhoneNumber(request.phoneNumber());
+        participant.setPhoneNumber(request.phoneNumber().number());
         this.participantRepository.save(participant);
 
         membership.setNickname(request.nickname());

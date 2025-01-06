@@ -2,7 +2,7 @@ package br.com.nemi.domain.participant.dto;
 
 public record RegisterRequestDTO(
         String email,
-        String phoneNumber,
+        PhoneNumberDTO phoneNumber,
         String password
 ) {
 }

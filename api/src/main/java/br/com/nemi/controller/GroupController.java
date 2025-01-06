@@ -3,7 +3,7 @@ package br.com.nemi.controller;
 import br.com.nemi.domain.group.Group;
 import br.com.nemi.domain.group.dto.CreateGroupRequestDTO;
 import br.com.nemi.domain.group.dto.GroupDetailsDTO;
-import br.com.nemi.domain.participant.dto.AddParticipantInGroupRequestDTO;
+import br.com.nemi.domain.group.dto.AddParticipantInGroupRequestDTO;
 import br.com.nemi.domain.participant.dto.ParticipantMembershipDetailsDTO;
 import br.com.nemi.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
