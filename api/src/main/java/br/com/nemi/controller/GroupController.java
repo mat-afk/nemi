@@ -55,10 +55,16 @@ public class GroupController {
         return ResponseEntity.ok().body(group);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGroup(@PathVariable String id) {
         this.groupService.deleteGroup(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{groupId}/participants")
+    public ResponseEntity<List<ParticipantMembershipDetailsDTO>> getParticipantsInGroup(@PathVariable String groupId) {
+        List<ParticipantMembershipDetailsDTO> response = this.groupService.getParticipantsFromGroup(groupId);
+        return ResponseEntity.ok().body(response);
     }
 
     @PutMapping("/{groupId}/participants")

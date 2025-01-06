@@ -120,6 +120,21 @@ public class GroupService {
         this.groupRepository.delete(group);
     }
 
+    public List<ParticipantMembershipDetailsDTO> getParticipantsFromGroup(String groupId) {
+        Group group = this.groupRepository.findById(groupId).orElseThrow(
+                () -> new NotFoundException("Group not found with id: " + groupId)
+        );
+
+        List<Membership> memberships = this.membershipRepository.findByGroup(group);
+
+        return memberships.stream().map(
+                membership -> new ParticipantMembershipDetailsDTO(
+                        membership.getParticipant(),
+                        membership.getNickname()
+                )
+        ).toList();
+    }
+
     public List<ParticipantMembershipDetailsDTO> addParticipants(
             String groupId,
             List<AddParticipantInGroupRequestDTO> request
@@ -181,10 +196,12 @@ public class GroupService {
             }
         });
 
-        return this.membershipRepository.findByGroup(group).stream().map(
-                m -> new ParticipantMembershipDetailsDTO(
-                        m.getParticipant(),
-                        m.getNickname()
+        List<Membership> memberships = this.membershipRepository.findByGroup(group);
+
+        return memberships.stream().map(
+                membership -> new ParticipantMembershipDetailsDTO(
+                        membership.getParticipant(),
+                        membership.getNickname()
                 )
         ).toList();
     }
