@@ -46,6 +46,15 @@ public class GroupController {
         return ResponseEntity.created(URI.create("")).body(response);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Group> updateGroup(
+            @PathVariable String id,
+            @RequestBody CreateGroupRequestDTO request
+    ) {
+        Group group = this.groupService.updateGroup(id, request);
+        return ResponseEntity.ok().body(group);
+    }
+
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteGroup(@PathVariable String id) {
         this.groupService.deleteGroup(id);

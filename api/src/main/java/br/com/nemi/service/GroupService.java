@@ -85,6 +85,23 @@ public class GroupService {
         return group;
     }
 
+    public Group updateGroup(String id, CreateGroupRequestDTO request) {
+        Group group = this.groupRepository.findById(id).orElseThrow(
+                () -> new NotFoundException("Group not found with id: " + id)
+        );
+
+        Participant authParticipant =
+                (Participant) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!group.getOwner().getId().equals(authParticipant.getId()))
+            throw new BadRequestException("You don't have permission to update this group");
+
+        group.setName(request.name());
+        this.groupRepository.save(group);
+
+        return group;
+    }
+
     public void deleteGroup(String id) {
         Group group = this.groupRepository.findById(id).orElseThrow(
                 () -> new NotFoundException("Group not found with id: " + id)
