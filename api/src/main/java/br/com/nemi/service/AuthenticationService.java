@@ -5,6 +5,7 @@ import br.com.nemi.domain.participant.AccessType;
 import br.com.nemi.domain.participant.Participant;
 import br.com.nemi.domain.participant.dto.AuthenticationResponseDTO;
 import br.com.nemi.domain.participant.dto.RegisterRequestDTO;
+import br.com.nemi.exception.BadRequestException;
 import br.com.nemi.exception.ConflictException;
 import br.com.nemi.exception.NotFoundException;
 import br.com.nemi.repository.ParticipantRepository;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -32,17 +34,20 @@ public class AuthenticationService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return this.participantRepository
-                .findByEmailOrPhoneNumber(username, username)
-                .orElseThrow(() -> new NotFoundException("User not found with: " + username));
+        return this.participantRepository.findByEmailOrPhoneNumber(username, username)
+                .stream().findFirst()
+                .orElseThrow(() -> new NotFoundException("Participant not found with: " + username)
+        );
     }
 
     public AuthenticationResponseDTO register(RegisterRequestDTO request) {
         String email = FieldValidator.isNullOrBlank(request.email()) ? null : request.email();
         String phoneNumber = FieldValidator.isNullOrBlank(request.phoneNumber()) ? null : request.phoneNumber();
 
-        Optional<Participant> existingParticipant =
-                this.participantRepository.findByEmailOrPhoneNumber(email, phoneNumber);
+        List<Participant> existingParticipants = this.participantRepository.findByEmailOrPhoneNumber(email, phoneNumber);
+        if (existingParticipants.size() > 1) throw new BadRequestException("Unavailable e-mail and/or phone number");
+
+        Optional<Participant> existingParticipant = existingParticipants.stream().findFirst();
 
         Participant participant;
 

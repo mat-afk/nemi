@@ -3,6 +3,7 @@ package br.com.nemi.repository;
 import br.com.nemi.domain.participant.Participant;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ParticipantRepository extends JpaRepository<Participant, String> {
@@ -11,5 +12,5 @@ public interface ParticipantRepository extends JpaRepository<Participant, String
 
     Optional<Participant> findByPhoneNumber(String phoneNumber);
 
-    Optional<Participant> findByEmailOrPhoneNumber(String email, String phoneNumber);
+    List<Participant> findByEmailOrPhoneNumber(String email, String phoneNumber);
 }

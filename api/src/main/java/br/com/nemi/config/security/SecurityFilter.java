@@ -42,6 +42,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             String username = this.tokenService.validateToken(token);
             UserDetails user = this.participantRepository
                     .findByEmailOrPhoneNumber(username, username)
+                    .stream().findFirst()
                     .orElseThrow(() -> new NotFoundException("Participant not found with: " + username));
 
             var authentication = new UsernamePasswordAuthenticationToken(
