@@ -7,6 +7,7 @@ import br.com.nemi.domain.membership.Membership;
 import br.com.nemi.domain.participant.Participant;
 import br.com.nemi.domain.result.Result;
 import br.com.nemi.exception.BadRequestException;
+import br.com.nemi.exception.ForbiddenException;
 import br.com.nemi.exception.InternalServerErrorException;
 import br.com.nemi.exception.NotFoundException;
 import br.com.nemi.repository.DrawRepository;
@@ -16,6 +17,7 @@ import br.com.nemi.repository.ResultRepository;
 import br.com.nemi.util.IdProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -150,6 +152,32 @@ public class DrawService {
         }
 
         return results;
+    }
+
+    public Draw updateDraw(String groupId, String drawId, CreateDrawRequestDTO request) {
+        Group group = this.groupRepository.findById(groupId).orElseThrow(
+                () -> new NotFoundException("Group not found with id: " + groupId)
+        );
+
+        Participant authParticipant =
+                (Participant) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!authParticipant.getId().equals(group.getOwner().getId()))
+            throw new ForbiddenException("You don't have permission to update draws in this group");
+
+        Draw draw = this.drawRepository.findById(drawId).orElseThrow(
+                () -> new NotFoundException("Draw not found with id: " + drawId)
+        );
+
+        draw.setTitle(request.title());
+        draw.setDescription(request.description().orElse(draw.getDescription()));
+        draw.setBasePrice(request.basePrice().orElse(draw.getBasePrice()));
+        LocalDate eventDate = request.eventDate().isPresent()
+                ? LocalDate.parse(request.eventDate().get())
+                : draw.getEventDate();
+        draw.setEventDate(eventDate);
+
+        return this.drawRepository.save(draw);
     }
 
 }

@@ -28,8 +28,8 @@ public class DrawController {
             @PathVariable String groupId,
             @PathVariable String drawId
     ) {
-        Draw draw = this.drawService.getDraw(groupId, drawId);
-        return ResponseEntity.ok().body(draw);
+        Draw response = this.drawService.getDraw(groupId, drawId);
+        return ResponseEntity.ok().body(response);
     }
 
     @PostMapping
@@ -39,6 +39,16 @@ public class DrawController {
     ) {
         Draw response = this.drawService.createDraw(groupId, request);
         return ResponseEntity.created(URI.create("")).body(response);
+    }
+
+    @PutMapping("/{drawId}")
+    public ResponseEntity<Draw> updateDraw(
+            @PathVariable String groupId,
+            @PathVariable String drawId,
+            @RequestBody CreateDrawRequestDTO request
+    ) {
+        Draw response = this.drawService.updateDraw(groupId, drawId, request);
+        return ResponseEntity.ok().body(response);
     }
 
 }
