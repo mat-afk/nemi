@@ -28,6 +28,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'cool.graph:cuid-java:0.1.1'
+	implementation 'com.aventrix.jnanoid:jnanoid:2.0.0'
 	implementation 'commons-validator:commons-validator:1.9.0'
 	implementation 'com.googlecode.libphonenumber:libphonenumber:8.13.52'
 	implementation 'com.auth0:java-jwt:4.4.0'

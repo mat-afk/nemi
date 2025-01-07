@@ -10,7 +10,7 @@ import br.com.nemi.exception.ConflictException;
 import br.com.nemi.exception.NotFoundException;
 import br.com.nemi.repository.ParticipantRepository;
 import br.com.nemi.util.FieldValidator;
-import br.com.nemi.util.IdentifierProvider;
+import br.com.nemi.util.IdProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -80,7 +80,7 @@ public class AuthenticationService implements UserDetailsService {
         } else {
 
             participant = new Participant();
-            participant.setId(IdentifierProvider.generateCUID());
+            participant.setId(IdProvider.generateCUID());
             participant.setEmail(email);
             participant.setPhoneNumber(phoneNumber);
 

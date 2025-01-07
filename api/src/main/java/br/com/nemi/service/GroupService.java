@@ -16,7 +16,7 @@ import br.com.nemi.repository.GroupRepository;
 import br.com.nemi.repository.MembershipRepository;
 import br.com.nemi.repository.ParticipantRepository;
 import br.com.nemi.util.FieldValidator;
-import br.com.nemi.util.IdentifierProvider;
+import br.com.nemi.util.IdProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -66,7 +66,7 @@ public class GroupService {
         LocalDateTime now = LocalDateTime.now();
 
         Group group = new Group();
-        group.setId(IdentifierProvider.generateCUID());
+        group.setId(IdProvider.generateCUID());
         group.setName(request.name());
         group.setOwner(owner);
         group.setCreatedAt(now);
@@ -173,7 +173,7 @@ public class GroupService {
                         throw new BadRequestException("Invalid phone number");
                 }
 
-                newParticipant.setId(IdentifierProvider.generateCUID());
+                newParticipant.setId(IdProvider.generateCUID());
                 newParticipant.setEmail(email);
                 newParticipant.setPhoneNumber(phoneNumber);
                 newParticipant.setPassword(null);

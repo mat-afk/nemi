@@ -1,0 +1,17 @@
+package br.com.nemi.repository;
+
+import br.com.nemi.domain.draw.Draw;
+import br.com.nemi.domain.result.Result;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface ResultRepository extends JpaRepository<Result, Long> {
+
+    List<Result> findByDraw(Draw draw);
+
+    void deleteByDraw(Draw draw);
+
+    Optional<Result> findByAccessCode(String accessCode);
+}

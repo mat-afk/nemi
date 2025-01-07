@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -21,12 +22,13 @@ public class Draw {
     @Id
     private String id;
 
+    @Column(nullable = false)
     private String title;
 
     private String description;
 
     @Column(name = "base_price")
-    private Double basePrice;
+    private BigDecimal basePrice;
 
     @Column(name = "event_date")
     private LocalDate eventDate;
