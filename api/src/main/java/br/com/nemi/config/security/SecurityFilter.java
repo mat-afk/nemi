@@ -15,13 +15,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
 
-    private final List<String> PUBLIC_ROUTES = List.of("/auth/login", "/auth/register", "/auth/logout");
+    private final List<String> PUBLIC_ROUTES_RAW = List.of(
+            "/auth/login",
+            "/auth/register",
+            "/auth/logout"
+    );
+
+    private final List<String> PUBLIC_ROUTES_PATTERN = List.of("/groups/\\w/draws/\\w/results/\\w");
 
     @Autowired
     private TokenService tokenService;
@@ -72,7 +77,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI().replace("/api", "");
-        return PUBLIC_ROUTES.contains(path);
+        return PUBLIC_ROUTES_RAW.contains(path) || PUBLIC_ROUTES_PATTERN.stream().anyMatch(path::matches);
     }
 
 }

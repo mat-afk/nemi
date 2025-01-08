@@ -5,7 +5,9 @@ import br.com.nemi.domain.draw.dto.CreateDrawRequestDTO;
 import br.com.nemi.domain.group.Group;
 import br.com.nemi.domain.membership.Membership;
 import br.com.nemi.domain.participant.Participant;
+import br.com.nemi.domain.participant.dto.ParticipantMembershipDetailsDTO;
 import br.com.nemi.domain.result.Result;
+import br.com.nemi.domain.result.ResultDetailsDTO;
 import br.com.nemi.exception.BadRequestException;
 import br.com.nemi.exception.ForbiddenException;
 import br.com.nemi.exception.InternalServerErrorException;
@@ -154,6 +156,54 @@ public class DrawService {
         this.resultRepository.saveAll(results);
     }
 
+    public ResultDetailsDTO getResults(String groupId, String drawId, String accessCode) {
+        Group group = this.groupRepository.findById(groupId).orElseThrow(
+                () -> new NotFoundException("Group not found with id: " + groupId)
+        );
+
+        Draw draw = this.drawRepository.findById(drawId).orElseThrow(
+                () -> new NotFoundException("Draw not found with id: " + drawId)
+        );
+
+        Object authParticipant = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        Result result;
+        if (authParticipant instanceof Participant) {
+            result = this.resultRepository.findByDrawAndGiver(draw, (Participant) authParticipant).orElseThrow(
+                    () -> new NotFoundException("Result not found for this draw")
+            );
+        } else {
+            if (accessCode == null || accessCode.isBlank())
+                throw new ForbiddenException("Cannot show results without access code");
+
+            result = this.resultRepository.findByAccessCode(accessCode).orElseThrow(
+                    () -> new NotFoundException("Result not found for this draw")
+            );
+        }
+
+        ParticipantMembershipDetailsDTO giver = new ParticipantMembershipDetailsDTO(
+                result.getGiver(),
+                this.membershipRepository.findByParticipantAndGroup(result.getGiver(), group).orElseThrow(
+                        () -> new BadRequestException("Participant is not in group")
+                ).getNickname()
+        );
+
+        ParticipantMembershipDetailsDTO receiver = new ParticipantMembershipDetailsDTO(
+                result.getReceiver(),
+                this.membershipRepository.findByParticipantAndGroup(result.getReceiver(), group).orElseThrow(
+                        () -> new BadRequestException("Participant is not in group")
+                ).getNickname()
+        );
+
+        return new ResultDetailsDTO(
+                result.getId(),
+                result.getAccessCode(),
+                result.getDraw(),
+                giver,
+                receiver
+        );
+    }
+
     private List<Result> drawResults(
             Draw draw,
             List<Participant> participants,
@@ -188,7 +238,7 @@ public class DrawService {
                 alreadyDrawn.add(receiver);
 
                 Result result = new Result();
-                result.setAccessCode(IdProvider.generateNanoId(6));
+                result.setAccessCode(IdProvider.generateNanoId(8));
                 result.setDraw(draw);
                 result.setGiver(giver);
                 result.setReceiver(receiver);

@@ -1,6 +1,7 @@
 package br.com.nemi.repository;
 
 import br.com.nemi.domain.draw.Draw;
+import br.com.nemi.domain.participant.Participant;
 import br.com.nemi.domain.result.Result;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +17,6 @@ public interface ResultRepository extends JpaRepository<Result, Long> {
     void deleteAllByDraw(Draw draw);
 
     Optional<Result> findByAccessCode(String accessCode);
+
+    Optional<Result> findByDrawAndGiver(Draw draw, Participant giver);
 }

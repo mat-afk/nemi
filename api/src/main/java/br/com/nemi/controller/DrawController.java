@@ -2,6 +2,7 @@ package br.com.nemi.controller;
 
 import br.com.nemi.domain.draw.Draw;
 import br.com.nemi.domain.draw.dto.CreateDrawRequestDTO;
+import br.com.nemi.domain.result.ResultDetailsDTO;
 import br.com.nemi.service.DrawService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -58,6 +59,16 @@ public class DrawController {
     ) {
         this.drawService.retry(groupId, drawId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{drawId}/results")
+    public ResponseEntity<ResultDetailsDTO> getResults(
+            @PathVariable String groupId,
+            @PathVariable String drawId,
+            @RequestParam(name = "code", required = false) String accessCode
+    ) {
+        ResultDetailsDTO response = this.drawService.getResults(groupId, drawId, accessCode);
+        return ResponseEntity.ok().body(response);
     }
 
 }
