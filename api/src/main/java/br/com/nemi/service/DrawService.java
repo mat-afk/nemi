@@ -87,21 +87,71 @@ public class DrawService {
                 .map(Membership::getParticipant)
                 .toList();
 
-        List<Draw> previousDraws = this.drawRepository.findByGroup(group);
-
-        List<Result> previousResults = new ArrayList<>();
-
-        previousDraws.forEach(d -> previousResults.addAll(this.resultRepository.findByDraw(d)));
-
-        Set<Pair<String, String>> previousPairs = previousResults.stream()
-                .map(r -> Pair.of(r.getGiver().getId(), r.getReceiver().getId()))
-                .collect(Collectors.toSet());
+        Set<Pair<String, String>> previousPairs = this.getPreviousPairs(group);
 
         List<Result> results = drawResults(draw, participants, previousPairs);
 
         this.resultRepository.saveAll(results);
 
         return draw;
+    }
+
+    public Draw updateDraw(String groupId, String drawId, CreateDrawRequestDTO request) {
+        Group group = this.groupRepository.findById(groupId).orElseThrow(
+                () -> new NotFoundException("Group not found with id: " + groupId)
+        );
+
+        Draw draw = this.drawRepository.findById(drawId).orElseThrow(
+                () -> new NotFoundException("Draw not found with id: " + drawId)
+        );
+
+        Participant authParticipant =
+                (Participant) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!authParticipant.getId().equals(group.getOwner().getId()))
+            throw new ForbiddenException("You don't have permission to update draws in this group");
+
+        draw.setTitle(request.title());
+        draw.setDescription(request.description().orElse(draw.getDescription()));
+        draw.setBasePrice(request.basePrice().orElse(draw.getBasePrice()));
+        LocalDate eventDate = request.eventDate().isPresent()
+                ? LocalDate.parse(request.eventDate().get())
+                : draw.getEventDate();
+        draw.setEventDate(eventDate);
+
+        return this.drawRepository.save(draw);
+    }
+
+    public void retry(String groupId, String drawId) {
+
+        Group group = this.groupRepository.findById(groupId).orElseThrow(
+                () -> new NotFoundException("Group not found with id: " + groupId)
+        );
+
+        Draw draw = this.drawRepository.findById(drawId).orElseThrow(
+                () -> new NotFoundException("Draw not found with id: " + drawId)
+        );
+
+        Participant authParticipant =
+                (Participant) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!authParticipant.getId().equals(group.getOwner().getId()))
+            throw new ForbiddenException("You don't have permission to create draws in this group");
+
+        List<Membership> memberships = this.membershipRepository.findByGroup(group);
+        if (memberships.size() < 2) throw new BadRequestException("Insufficient number of participants to draw");
+
+        this.resultRepository.deleteAllByDraw(draw);
+
+        List<Participant> participants = memberships.stream()
+                .map(Membership::getParticipant)
+                .toList();
+
+        Set<Pair<String, String>> previousPairs = this.getPreviousPairs(group);
+
+        List<Result> results = drawResults(draw, participants, previousPairs);
+
+        this.resultRepository.saveAll(results);
     }
 
     private List<Result> drawResults(
@@ -154,30 +204,15 @@ public class DrawService {
         return results;
     }
 
-    public Draw updateDraw(String groupId, String drawId, CreateDrawRequestDTO request) {
-        Group group = this.groupRepository.findById(groupId).orElseThrow(
-                () -> new NotFoundException("Group not found with id: " + groupId)
-        );
+    private Set<Pair<String, String>> getPreviousPairs(Group group) {
+        List<Draw> previousDraws = this.drawRepository.findByGroup(group);
 
-        Participant authParticipant =
-                (Participant) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Result> previousResults = new ArrayList<>();
 
-        if (!authParticipant.getId().equals(group.getOwner().getId()))
-            throw new ForbiddenException("You don't have permission to update draws in this group");
+        previousDraws.forEach(d -> previousResults.addAll(this.resultRepository.findByDraw(d)));
 
-        Draw draw = this.drawRepository.findById(drawId).orElseThrow(
-                () -> new NotFoundException("Draw not found with id: " + drawId)
-        );
-
-        draw.setTitle(request.title());
-        draw.setDescription(request.description().orElse(draw.getDescription()));
-        draw.setBasePrice(request.basePrice().orElse(draw.getBasePrice()));
-        LocalDate eventDate = request.eventDate().isPresent()
-                ? LocalDate.parse(request.eventDate().get())
-                : draw.getEventDate();
-        draw.setEventDate(eventDate);
-
-        return this.drawRepository.save(draw);
+        return previousResults.stream()
+                .map(r -> Pair.of(r.getGiver().getId(), r.getReceiver().getId()))
+                .collect(Collectors.toSet());
     }
-
 }

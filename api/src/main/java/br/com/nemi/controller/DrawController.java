@@ -51,4 +51,13 @@ public class DrawController {
         return ResponseEntity.ok().body(response);
     }
 
+    @PutMapping("/{drawId}/retry")
+    public ResponseEntity<Void> retry(
+            @PathVariable String groupId,
+            @PathVariable String drawId
+    ) {
+        this.drawService.retry(groupId, drawId);
+        return ResponseEntity.ok().build();
+    }
+
 }
