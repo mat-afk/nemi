@@ -32,6 +32,7 @@ dependencies {
 	implementation 'commons-validator:commons-validator:1.9.0'
 	implementation 'com.googlecode.libphonenumber:libphonenumber:8.13.52'
 	implementation 'com.auth0:java-jwt:4.4.0'
+	implementation 'com.twilio.sdk:twilio:10.6.4'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.mysql:mysql-connector-j'
