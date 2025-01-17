@@ -1,4 +1,4 @@
-package br.com.nemi.domain.result;
+package br.com.nemi.domain.result.dto;
 
 import br.com.nemi.domain.draw.Draw;
 import br.com.nemi.domain.participant.dto.ParticipantMembershipDetailsDTO;

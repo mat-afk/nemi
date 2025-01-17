@@ -7,7 +7,8 @@ import br.com.nemi.domain.membership.Membership;
 import br.com.nemi.domain.participant.Participant;
 import br.com.nemi.domain.participant.dto.ParticipantMembershipDetailsDTO;
 import br.com.nemi.domain.result.Result;
-import br.com.nemi.domain.result.ResultDetailsDTO;
+import br.com.nemi.domain.result.dto.ResultDetailsDTO;
+import br.com.nemi.domain.result.dto.ResultMessageDTO;
 import br.com.nemi.exception.BadRequestException;
 import br.com.nemi.exception.ForbiddenException;
 import br.com.nemi.exception.InternalServerErrorException;
@@ -42,6 +43,9 @@ public class DrawService {
 
     @Autowired
     private MembershipRepository membershipRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     public List<Draw> getDraws(String groupId) {
         Group group = this.groupRepository.findById(groupId).orElseThrow(
@@ -85,15 +89,27 @@ public class DrawService {
 
         this.drawRepository.save(draw);
 
-        List<Participant> participants = memberships.stream()
-                .map(Membership::getParticipant)
-                .toList();
+        HashMap<Participant, String> participants = (HashMap<Participant, String>) memberships.stream()
+                .collect(Collectors.toMap(Membership::getParticipant, Membership::getNickname));
 
         Set<Pair<String, String>> previousPairs = this.getPreviousPairs(group);
 
-        List<Result> results = drawResults(draw, participants, previousPairs);
+        List<Result> results = drawResults(draw, participants.keySet().stream().toList(), previousPairs);
 
         this.resultRepository.saveAll(results);
+
+        List<ResultMessageDTO> resultMessageDTOs = results.stream().map(
+                result -> new ResultMessageDTO(
+                        result.getGiver().getEmail(),
+                        result.getGiver().getPhoneNumber(),
+                        draw.getTitle(),
+                        participants.get(result.getGiver()),
+                        "http://localhost:3000/results",
+                        result.getAccessCode()
+                )
+        ).toList();
+
+        this.notificationService.notifyAll(resultMessageDTOs);
 
         return draw;
     }
@@ -145,15 +161,27 @@ public class DrawService {
 
         this.resultRepository.deleteAllByDraw(draw);
 
-        List<Participant> participants = memberships.stream()
-                .map(Membership::getParticipant)
-                .toList();
+        HashMap<Participant, String> participants = (HashMap<Participant, String>) memberships.stream()
+                .collect(Collectors.toMap(Membership::getParticipant, Membership::getNickname));
 
         Set<Pair<String, String>> previousPairs = this.getPreviousPairs(group);
 
-        List<Result> results = drawResults(draw, participants, previousPairs);
+        List<Result> results = drawResults(draw, participants.keySet().stream().toList(), previousPairs);
 
         this.resultRepository.saveAll(results);
+
+        List<ResultMessageDTO> resultMessageDTOs = results.stream().map(
+                result -> new ResultMessageDTO(
+                        result.getGiver().getEmail(),
+                        result.getGiver().getPhoneNumber(),
+                        draw.getTitle(),
+                        participants.get(result.getGiver()),
+                        "http://localhost:3000/results",
+                        result.getAccessCode()
+                )
+        ).toList();
+
+        this.notificationService.notifyAll(resultMessageDTOs);
     }
 
     public ResultDetailsDTO getResults(String groupId, String drawId, String accessCode) {

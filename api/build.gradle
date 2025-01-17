@@ -33,6 +33,7 @@ dependencies {
 	implementation 'com.googlecode.libphonenumber:libphonenumber:8.13.52'
 	implementation 'com.auth0:java-jwt:4.4.0'
 	implementation 'com.twilio.sdk:twilio:10.6.4'
+	implementation 'com.sun.mail:jakarta.mail:2.0.1'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.mysql:mysql-connector-j'
